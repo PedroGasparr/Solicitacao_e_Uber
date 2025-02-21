@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="img/GZL - Logos_pages-to-jpg-0004.jpg">
+  <title>Aprovação de Voucher</title>
+  <style>
+    /* Reset de estilo e configuração de tipografia */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #e6e9ed);
+      color: #333;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 30px;
+      color: #2c3e50;
+      text-align: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      animation: fadeInDown 1s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1 img {
+      height: 50px;
+      width: auto;
+    }
+
+    h1::after {
+      content: '';
+      display: block;
+      height: 4px;
+      width: 80px;
+      background-color: #3498db;
+      margin: 20px auto 0;
+      border-radius: 2px;
+      animation: scaleX 1s ease-out;
+    }
+
+    .card-container {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      color: #333;
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
+      position: relative;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease-out forwards;
+      animation-delay: calc(var(--index) * 0.2s);
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h3 {
+      font-size: 1.6rem;
+      color: #3498db;
+      margin-bottom: 15px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .card p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .card .button {
+      background-color: #3498db;
+      color: white;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      margin-top: 15px;
+      display: inline-block;
+    }
+
+    .card .button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    .card .button:active {
+      background-color: #2980b9;
+      transform: translateY(0);
+    }
+
+    /* Animação para fade-in */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scaleX {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    /* Cores e bordas diferentes para planilhas */
+    .card.planilha2 {
+      background: #ecf0f1;
+      border-left: 5px solid #3498db;
+    }
+
+    .card.planilha2.approved {
+      background: #e8f5e9;
+      border-left: 5px solid #4CAF50;
+    }
+
+    .card.planilha2.rejected {
+      background: #ffebee;
+      border-left: 5px solid #f44336;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2.2rem;
+        flex-direction: column;
+        text-align: center;
+      }
+      h1 img {
+        height: 40px;
+      }
+      .card-container {
+        width: 100%;
+        padding: 10px;
+      }
+      .card {
+        padding: 20px;
+      }
+      .card h3 {
+        font-size: 1.4rem;
+      }
+      .card p {
+        font-size: 1rem;
+      }
+      .card .button {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Aprovação de Voucher</h1>
+  <div id="cards-container" class="card-container"></div>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script>
+    google.charts.load('current', { packages: ['corechart', 'table'] });
+
+    google.charts.setOnLoadCallback(() => {
+      const sheetUrl1 = 'https://docs.google.com/spreadsheets/d/1cOdxnOYdWKy5pr0kakcnSFOpCeQdui9C4yppGNI-xa4/gviz/tq?tqx=out:csv';
+      const sheetUrl2 = 'https://docs.google.com/spreadsheets/d/1DwaNXlirinEUp5DDJMUXggdD_p51ZRX5HdcCgNkOr3s/gviz/tq?tqx=out:csv';
+
+      let planilha1Cards = [];
+      let planilha2Cards = [];
+
+      function loadData(sheetUrl, isFirstSheet) {
+        return fetch(sheetUrl)
+          .then(response => response.text())
+          .then(csvData => {
+            const rows = csvData.split('\n').slice(1).reverse();
+            let cards = [];
+
+            rows.forEach((row, index) => {
+              const columns = row.split(',');
+              const rowId = rows.length - index;
+
+              if (isFirstSheet) {
+                const title = columns[0].replace(/"/g, '');
+                const message = columns[6].replace(/"/g, '');
+                const additionalInfo = columns[7].replace(/"/g, '');
+
+                const card = `
+                  <div class="card" style="--index: ${index}">
+                    <h3>${title}</h3>
+                    <p><strong>Mensagem:</strong> ${message}</p>
+                    <p><strong>Info adicional:</strong> ${additionalInfo}</p>
+                    <p><strong>ID da linha:</strong> ${rowId}</p>
+                    <div class="buttons-container" id="buttons-${rowId}">
+                      <button class="button approve" onclick="sendDecision(${rowId}, 'Aprovado')">Aprovar</button>
+                      <button class="button reject" onclick="sendDecision(${rowId}, 'Recusado')">Recusar</button>
+                    </div>
+                  </div>
+                `;
+                planilha1Cards.push({ id: rowId, content: card });
+              } else {
+                const status = columns[2].replace(/"/g, '');
+                const cardClass = status === 'Aprovado' ? 'card planilha2 approved' : (status === 'Recusado' ? 'card planilha2 rejected' : 'card planilha2');
+
+                const card = `
+                  <div class="${cardClass}" style="--index: ${index}">
+                    <h3>ID: ${rowId}</h3>
+                    <p><strong>Status:</strong> ${status}</p>
+                  </div>
+                `;
+                planilha2Cards.push({ id: rowId, content: card, status: status });
+              }
+            });
+          })
+          .catch(error => console.error('Erro ao carregar a planilha:', error));
+      }
+
+      Promise.all([loadData(sheetUrl1, true), loadData(sheetUrl2, false)]).then(() => {
+        const container = document.getElementById('cards-container');
+        const maxLength = Math.max(planilha1Cards.length, planilha2Cards.length);
+        let allRows = [];
+
+        for (let i = 0; i < maxLength; i++) {
+          const card1 = planilha1Cards[i] ? planilha1Cards[i].content : '<div class="card"></div>';
+          const card2 = planilha2Cards[i] ? planilha2Cards[i].content : '<div class="card planilha2"></div>';
+
+          const row = `
+            ${card1}
+            ${card2}
+          `;
+          allRows.push(row);
+        }
+
+        container.innerHTML = allRows.join('');
+
+        planilha2Cards.forEach(card2 => {
+          if (card2.status) {
+            const buttonsContainer = document.getElementById(`buttons-${card2.id}`);
+            if (buttonsContainer) {
+              buttonsContainer.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+
+    function disableButtons(rowId) {
+      const buttonsContainer = document.getElementById(`buttons-${rowId}`);
+      if (buttonsContainer) {
+        buttonsContainer.style.display = 'none';
+      }
+    }
+
+    function sendDecision(id, choice) {
+      disableButtons(id);
+
+      fetch('https://script.google.com/macros/s/AKfycbwhV4s-wmHRdsuzZQ-0Tpb7PGxfT4h2hrFaRIThV_WyB1kj0e8n675DQ-jz4Zy2OlD5/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rowId: id, data_pergunta1: id.toString(), data_pergunta2: choice }),
+        mode: 'no-cors'
+      })
+      .then(response => {
+        console.log('Requisição enviada');
+        location.reload();
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+      });
+    }
+  </script>
+</body>
+</html>

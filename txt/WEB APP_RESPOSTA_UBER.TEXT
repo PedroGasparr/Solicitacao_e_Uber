@@ -1,0 +1,20 @@
+function doPost(e) {
+  try {
+    // Parseia os dados recebidos
+    var data = JSON.parse(e.postData.contents);
+    
+    // Acessa a nova planilha usando o ID
+    var sheet = SpreadsheetApp.openById("1DwaNXlirinEUp5DDJMUXggdD_p51ZRX5HdcCgNkOr3s").getSheetByName("Página1");
+    
+    // Adiciona o ID e a resposta na próxima linha disponível
+    sheet.appendRow([data.rowId, data.data_pergunta1, data.data_pergunta2]);
+
+    // Retorna resposta de sucesso
+    return ContentService.createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    // Retorna mensagem de erro
+    return ContentService.createTextOutput(JSON.stringify({ success: false, message: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}

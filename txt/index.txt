@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitação de Uber - [Nome da Empresa]</title>
+    <link rel="stylesheet" href="Style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header>
+            <img src="logo-empresa.png" alt="Logo da [Nome da Empresa]" class="logo">
+            <h1>Solicitação de Uber</h1>
+            <p>Preencha o formulário abaixo para solicitar seu transporte.</p>
+        </header>
+
+        <!-- Seção de Informações -->
+        <section class="info-section">
+            <h2>Como Funciona?</h2>
+            <div class="info-cards">
+                <div class="card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Faça Sua Solicitação</h3>
+                    <p>Logo iremos validar.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Aprovação ou Recusa</h3>
+                    <p>Se sua solicitação for aprovada, entraremos em contato.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-car"></i>
+                    <h3>Disponibilização do Voucher</h3>
+                    <p>Agora é só aproveitar sua corrida.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulário -->
+        <form id="formulario" action="https://script.google.com/macros/s/AKfycbyY7y3kWshoxV0W7NCfX3wT07y2TMW7YE66t97aIRmtVAvC2AJFtWJ7tlsQCRBVRzAL/exec" method="POST">
+            <h2>Formulário de Solicitação</h2>
+            <div class="form-group">
+                <label for="pergunta1">1. Nome Completo:</label>
+                <input type="text" id="pergunta1" name="pergunta1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta2">2. Você tentou outros meios de transporte antes de solicitar o Uber?</label>
+                <input type="text" id="pergunta2" name="pergunta2" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta3">3. Quem está solicitando o Uber?</label>
+                <input type="text" id="pergunta3" name="pergunta3" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta4">4. Qual é o local de saída?</label>
+                <input type="text" id="pergunta4" name="pergunta4" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta5">5. Qual é o local de destino?</label>
+                <input type="text" id="pergunta5" name="pergunta5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta6">6. Esta viagem é para outra pessoa?</label>
+                <input type="text" id="pergunta6" name="pergunta6" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta7">7. Qual é o motivo deste transporte? "Descreva"</label>
+                <textarea id="pergunta7" name="pergunta7" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pergunta8">8. Valor da Corrida: ex 00,00</label>
+                <input type="text" id="pergunta8" name="pergunta8" required>
+            </div>
+
+            <button type="submit" id="enviarBtn">Enviar Respostas</button>
+        </form>
+
+        <!-- Rodapé -->
+        <footer>
+            <p>&copy; 2025 Pedro Gaspar. Todos os direitos reservados.</p>
+            <div class="social-links">
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('formulario').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+            const botao = document.getElementById('enviarBtn');
+            botao.disabled = true; // Desativa o botão após o envio
+
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            fetch(form.action, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'no-cors'
+            })
+            .then(() => {
+                alert('Respostas enviadas com sucesso!');
+                form.reset(); // Limpa o formulário após o envio
+                botao.disabled = false; // Reativa o botão após resetar o formulário
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                botao.disabled = false; // Reativa o botão em caso de erro
+            });
+        });
+    </script>
+</body>
+</html>
