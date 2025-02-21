@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aprovação de Voucher</title>
+  <title>Acompanhamento de Chamados</title>
   <link rel="icon" type="image/x-icon" href="img/GZL - Logos_pages-to-jpg-0004.jpg">
   <style>
       /* Reset de estilo e configuração de tipografia */
@@ -246,7 +246,7 @@
                 const nome = columns[0].replace(/"/g, ''); // Coluna A contém o nome
                 const title = columns[1].replace(/"/g, ''); // Coluna B contém o título
                 const message = columns[6].replace(/"/g, ''); // Coluna G contém a mensagem
-                const additionalInfo = columns[7].replace(/"/g, ''); // Coluna H contém a info adicional
+                const additionalInfo = columns[8].replace(/"/g, ''); // Coluna H contém a info adicional
 
                 // Filtra as solicitações com base no nome fornecido (comparação aproximada)
                 if (nome.toLowerCase().includes(nomeCompleto.toLowerCase())) {
