@@ -241,13 +241,23 @@
               if (isFirstSheet) {
                 const title = columns[0].replace(/"/g, '');
                 const message = columns[6].replace(/"/g, '');
+                const Endereço1 = columns[3].replace(/"/g, '');
+                const Endereço2 = columns[4].replace(/"/g, '');
+                const Utilização = columns[5].replace(/"/g, '');
+                const valor= columns[7].replace(/"/g, '');
+                const Unidade= columns[9].replace(/"/g, '');
                 const additionalInfo = columns[8].replace(/"/g, '');
 
                 const card = `
                   <div class="card" style="--index: ${index}">
                     <h3>${title}</h3>
                     <p><strong>Mensagem:</strong> ${message}</p>
-                    <p><strong>Info adicional:</strong> ${additionalInfo}</p>
+                    <p><strong>Data De Solicitação:</strong> ${additionalInfo}</p>
+                    <p><strong>Saida:</strong> ${Endereço1}</p>
+                    <p><strong>Destino:</strong> ${Endereço2}</p>
+                    <p><strong>Data de Utilização:</strong> ${Utilização}</p>
+                    <p><strong>Valor Da Corrida:</strong> ${valor}</p>
+                    <p><strong>Unidade De Atendimento:</strong> ${Unidade}</p>
                     <p><strong>ID da linha:</strong> ${rowId}</p>
                     <div class="buttons-container" id="buttons-${rowId}">
                       <button class="button approve" onclick="sendDecision(${rowId}, 'Aprovado')">Aprovar</button>
