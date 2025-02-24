@@ -111,6 +111,14 @@
       display: inline-block;
     }
 
+    .card .button.whatsapp {
+      background-color: #25D366; /* Cor verde do WhatsApp */
+    }
+
+    .card .button.whatsapp:hover {
+      background-color: #128C7E; /* Cor verde mais escura do WhatsApp */
+    }
+
     .card .button:hover {
       background-color: #2980b9;
       transform: translateY(-2px);
@@ -244,8 +252,8 @@
                 const Endereço1 = columns[3].replace(/"/g, '');
                 const Endereço2 = columns[4].replace(/"/g, '');
                 const Utilização = columns[5].replace(/"/g, '');
-                const valor= columns[7].replace(/"/g, '');
-                const Unidade= columns[9].replace(/"/g, '');
+                const valor = columns[7].replace(/"/g, '');
+                const Unidade = columns[9].replace(/"/g, '');
                 const additionalInfo = columns[8].replace(/"/g, '');
 
                 const card = `
@@ -262,6 +270,7 @@
                     <div class="buttons-container" id="buttons-${rowId}">
                       <button class="button approve" onclick="sendDecision(${rowId}, 'Aprovado')">Aprovar</button>
                       <button class="button reject" onclick="sendDecision(${rowId}, 'Recusado')">Recusar</button>
+                      <button class="button whatsapp" onclick="sendToWhatsApp(${rowId})">Enviar via WhatsApp</button>
                     </div>
                   </div>
                 `;
@@ -305,7 +314,9 @@
           if (card2.status) {
             const buttonsContainer = document.getElementById(`buttons-${card2.id}`);
             if (buttonsContainer) {
-              buttonsContainer.style.display = 'none';
+              // Oculta apenas os botões de "Aprovar" e "Recusar"
+              buttonsContainer.querySelector('.approve').style.display = 'none';
+              buttonsContainer.querySelector('.reject').style.display = 'none';
             }
           }
         });
@@ -315,7 +326,8 @@
     function disableButtons(rowId) {
       const buttonsContainer = document.getElementById(`buttons-${rowId}`);
       if (buttonsContainer) {
-        buttonsContainer.style.display = 'none';
+        buttonsContainer.querySelector('.approve').style.display = 'none';
+        buttonsContainer.querySelector('.reject').style.display = 'none';
       }
     }
 
@@ -335,6 +347,32 @@
       .catch(error => {
         console.error('Erro:', error);
       });
+    }
+
+    function sendToWhatsApp(rowId) {
+      const card = document.querySelector(`#buttons-${rowId}`).parentElement;
+      const title = card.querySelector('h3').innerText;
+      const message = card.querySelector('p:nth-child(2)').innerText;
+      const dataSolicitacao = card.querySelector('p:nth-child(3)').innerText;
+      const saida = card.querySelector('p:nth-child(4)').innerText;
+      const destino = card.querySelector('p:nth-child(5)').innerText;
+      const utilizacao = card.querySelector('p:nth-child(6)').innerText;
+      const valor = card.querySelector('p:nth-child(7)').innerText;
+      const unidade = card.querySelector('p:nth-child(8)').innerText;
+
+      const text = `*Informações do Voucher:*\n\n` +
+        `*Título:* ${title}\n` +
+        `*Mensagem:* ${message}\n` +
+        `*Data de Solicitação:* ${dataSolicitacao}\n` +
+        `*Saída:* ${saida}\n` +
+        `*Destino:* ${destino}\n` +
+        `*Data de Utilização:* ${utilizacao}\n` +
+        `*Valor da Corrida:* ${valor}\n` +
+        `*Unidade de Atendimento:* ${unidade}\n`;
+
+      const encodedText = encodeURIComponent(text);
+      const whatsappUrl = `https://wa.me/5519998828403?text=${encodedText}`;
+      window.open(whatsappUrl, '_blank');
     }
   </script>
 </body>
