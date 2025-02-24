@@ -350,30 +350,43 @@
     }
 
     function sendToWhatsApp(rowId) {
-      const card = document.querySelector(`#buttons-${rowId}`).parentElement;
-      const title = card.querySelector('h3').innerText;
-      const message = card.querySelector('p:nth-child(2)').innerText;
-      const dataSolicitacao = card.querySelector('p:nth-child(3)').innerText;
-      const saida = card.querySelector('p:nth-child(4)').innerText;
-      const destino = card.querySelector('p:nth-child(5)').innerText;
-      const utilizacao = card.querySelector('p:nth-child(6)').innerText;
-      const valor = card.querySelector('p:nth-child(7)').innerText;
-      const unidade = card.querySelector('p:nth-child(8)').innerText;
+  const card = document.querySelector(`#buttons-${rowId}`).parentElement;
+  const title = card.querySelector('h3').innerText;
+  const message = card.querySelector('p:nth-child(2)').innerText;
+  const dataSolicitacao = card.querySelector('p:nth-child(3)').innerText;
+  const saida = card.querySelector('p:nth-child(4)').innerText;
+  const destino = card.querySelector('p:nth-child(5)').innerText;
+  const utilizacao = card.querySelector('p:nth-child(6)').innerText;
+  const valor = card.querySelector('p:nth-child(7)').innerText;
+  const unidade = card.querySelector('p:nth-child(8)').innerText;
+  const idCard1 = card.querySelector('p:nth-child(9)').innerText; // ID do Card 1
 
-      const text = `*Informações do Voucher:*\n\n` +
-        `*Título:* ${title}\n` +
-        `*Mensagem:* ${message}\n` +
-        `*Data de Solicitação:* ${dataSolicitacao}\n` +
-        `*Saída:* ${saida}\n` +
-        `*Destino:* ${destino}\n` +
-        `*Data de Utilização:* ${utilizacao}\n` +
-        `*Valor da Corrida:* ${valor}\n` +
-        `*Unidade de Atendimento:* ${unidade}\n`;
+  // Encontra o Card 2 correspondente ao mesmo ID
+  const card2 = Array.from(document.querySelectorAll('.card.planilha2')).find(card => {
+    const cardId = card.querySelector('h3').innerText.replace('ID: ', '');
+    return cardId === rowId.toString();
+  });
 
-      const encodedText = encodeURIComponent(text);
-      const whatsappUrl = `https://wa.me/5519998828403?text=${encodedText}`;
-      window.open(whatsappUrl, '_blank');
-    }
+  const idCard2 = card2 ? card2.querySelector('h3').innerText.replace('ID: ', '') : 'N/A';
+  const statusCard2 = card2 ? card2.querySelector('p').innerText.replace('Status: ', '') : 'N/A';
+
+  const text = `*Informações do Voucher:*\n\n` +
+    `*Título:* ${title}\n` +
+    `*Mensagem:* ${message}\n` +
+    `*Data de Solicitação:* ${dataSolicitacao}\n` +
+    `*Saída:* ${saida}\n` +
+    `*Destino:* ${destino}\n` +
+    `*Data de Utilização:* ${utilizacao}\n` +
+    `*Valor da Corrida:* ${valor}\n` +
+    `*Unidade de Atendimento:* ${unidade}\n` +
+    `*ID do Card 1:* ${idCard1}\n` +
+    `*ID do Card 2:* ${idCard2}\n` +
+    `*Status do Card 2:* ${statusCard2}\n`;
+
+  const encodedText = encodeURIComponent(text);
+  const whatsappUrl = `https://wa.me/5519998828403?text=${encodedText}`;
+  window.open(whatsappUrl, '_blank');
+}
   </script>
 </body>
 </html>
