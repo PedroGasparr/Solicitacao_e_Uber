@@ -129,6 +129,15 @@
       transform: translateY(0);
     }
 
+    .card input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
     /* Animação para fade-in */
     @keyframes fadeIn {
       from {
@@ -259,7 +268,7 @@
                 const card = `
                   <div class="card" style="--index: ${index}">
                     <h3>${title}</h3>
-                    <p><strong>Mensagem:</strong> ${message}</p>
+                    <p><strong>Justificativa:</strong> ${message}</p>
                     <p><strong>Data De Solicitação:</strong> ${additionalInfo}</p>
                     <p><strong>Saida:</strong> ${Endereço1}</p>
                     <p><strong>Destino:</strong> ${Endereço2}</p>
@@ -267,6 +276,8 @@
                     <p><strong>Valor Da Corrida:</strong> ${valor}</p>
                     <p><strong>Unidade De Atendimento:</strong> ${Unidade}</p>
                     <p><strong>ID da linha:</strong> ${rowId}</p>
+                    <label for="valor-real-${rowId}">Valor Real da Corrida:</label>
+                    <input type="text" id="valor-real-${rowId}" placeholder="Digite o valor real da corrida">
                     <div class="buttons-container" id="buttons-${rowId}">
                       <button class="button approve" onclick="sendDecision(${rowId}, 'Aprovado')">Aprovar</button>
                       <button class="button reject" onclick="sendDecision(${rowId}, 'Recusado')">Recusar</button>
@@ -350,43 +361,35 @@
     }
 
     function sendToWhatsApp(rowId) {
-  const card = document.querySelector(`#buttons-${rowId}`).parentElement;
-  const title = card.querySelector('h3').innerText;
-  const message = card.querySelector('p:nth-child(2)').innerText;
-  const dataSolicitacao = card.querySelector('p:nth-child(3)').innerText;
-  const saida = card.querySelector('p:nth-child(4)').innerText;
-  const destino = card.querySelector('p:nth-child(5)').innerText;
-  const utilizacao = card.querySelector('p:nth-child(6)').innerText;
-  const valor = card.querySelector('p:nth-child(7)').innerText;
-  const unidade = card.querySelector('p:nth-child(8)').innerText;
-  const idCard1 = card.querySelector('p:nth-child(9)').innerText; // ID do Card 1
+      const card = document.querySelector(`#buttons-${rowId}`).parentElement;
+      const title = card.querySelector('h3').innerText;
+      const message = card.querySelector('p:nth-child(2)').innerText;
+      const idCard1 = card.querySelector('p:nth-child(9)').innerText; // ID do Card 1
+      const valor = card.querySelector('p:nth-child(7)').innerText; // ID do Card 1
+      const valorCorrida = card.querySelector(`#valor-real-${rowId}`).value;
 
-  // Encontra o Card 2 correspondente ao mesmo ID
-  const card2 = Array.from(document.querySelectorAll('.card.planilha2')).find(card => {
-    const cardId = card.querySelector('h3').innerText.replace('ID: ', '');
-    return cardId === rowId.toString();
-  });
+      // Encontra o Card 2 correspondente ao mesmo ID
+      const card2 = Array.from(document.querySelectorAll('.card.planilha2')).find(card => {
+        const cardId = card.querySelector('h3').innerText.replace('ID: ', '');
+        return cardId === rowId.toString();
+      });
 
-  const idCard2 = card2 ? card2.querySelector('h3').innerText.replace('ID: ', '') : 'N/A';
-  const statusCard2 = card2 ? card2.querySelector('p').innerText.replace('Status: ', '') : 'N/A';
+      const idCard2 = card2 ? card2.querySelector('h3').innerText.replace('ID: ', '') : 'N/A';
+      const statusCard2 = card2 ? card2.querySelector('p').innerText.replace('Status: ', '') : 'N/A';
 
-  const text = `*Informações do Voucher:*\n\n` +
-    `*Título:* ${title}\n` +
-    ` ${message}\n` +
-    ` ${dataSolicitacao}\n` +
-    ` ${saida}\n` +
-    ` ${destino}\n` +
-    ` ${utilizacao}\n` +
-    ` ${valor}\n` +
-    ` ${unidade}\n` +
-    ` ${idCard1}\n` +
-    ` ${idCard2}\n` +
-    ` ${statusCard2}\n`;
+      const text = `*Informações do Voucher:*\n\n` +
+        `*Título:* ${title}\n` +
+        `*Mensagem:* ${message}\n` +
+        `*ID do Card 1:* ${idCard1}\n` +
+        `*ID do Card 2:* ${idCard2}\n` +
+        `*Status do Card 2:* ${statusCard2}\n` +
+        `*Valor Informado pelo Solicitante* ${valor}\n` +
+        `*Valor da Corrida Atualizado:* ${valorCorrida}\n`;
 
-  const encodedText = encodeURIComponent(text);
-  const whatsappUrl = `https://wa.me/5511976115802?text=${encodedText}`;
-  window.open(whatsappUrl, '_blank');
-}
+      const encodedText = encodeURIComponent(text);
+      const whatsappUrl = `https://wa.me/5511976115802?text=${encodedText}`;
+      window.open(whatsappUrl, '_blank');
+    }
   </script>
 </body>
 </html>
