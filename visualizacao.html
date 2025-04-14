@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Acompanhamento de Chamados</title>
   <link rel="icon" type="image/x-icon" href="img/GZL - Logos_pages-to-jpg-0004.jpg">
+  <!-- Adicionando Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
   <style>
       /* Reset de estilo e configuração de tipografia */
       * {
@@ -162,20 +165,44 @@
       }
     }
 
-    /* Cores e bordas diferentes para planilhas */
-    .card.planilha2 {
-      background: #ecf0f1;
-      border-left: 5px solid #3498db;
-    }
-
-    .card.planilha2.approved {
+    /* Cores e bordas diferentes para status */
+    .card.approved {
       background: #e8f5e9;
       border-left: 5px solid #4CAF50;
     }
 
-    .card.planilha2.rejected {
+    .card.rejected {
       background: #ffebee;
       border-left: 5px solid #f44336;
+    }
+
+    .card.pending {
+      background: #fff8e1;
+      border-left: 5px solid #FFC107;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .approved-badge {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .rejected-badge {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .pending-badge {
+      background-color: #FFC107;
+      color: #333;
     }
 
     /* Responsividade */
@@ -217,88 +244,121 @@
   <h1>Aprovação de Voucher</h1>
   <div id="cards-container" class="card-container"></div>
 
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script>
-    google.charts.load('current', { packages: ['corechart', 'table'] });
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmhnN2jEQWMeAwSLJiAfNHUapM5_HgiOw",
+      authDomain: "appguizilim.firebaseapp.com",
+      databaseURL: "https://appguizilim-default-rtdb.firebaseio.com",
+      projectId: "appguizilim",
+      storageBucket: "appguizilim.firebasestorage.app",
+      messagingSenderId: "669241709255",
+      appId: "1:669241709255:web:bde10d035254b74c9724e2",
+      measurementId: "G-J2MKLZ5XL0"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
     // Solicitar o nome completo da pessoa antes de carregar o conteúdo
     const nomeCompleto = prompt("Por favor, insira seu nome completo:");
 
-    google.charts.setOnLoadCallback(() => {
-      const sheetUrl1 = 'https://docs.google.com/spreadsheets/d/1cOdxnOYdWKy5pr0kakcnSFOpCeQdui9C4yppGNI-xa4/gviz/tq?tqx=out:csv';
-      const sheetUrl2 = 'https://docs.google.com/spreadsheets/d/1DwaNXlirinEUp5DDJMUXggdD_p51ZRX5HdcCgNkOr3s/gviz/tq?tqx=out:csv';
+    // Função para carregar os dados do Firebase
+    function loadDataFromFirebase() {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '<p>Carregando suas solicitações...</p>';
 
-      let planilha1Cards = [];
-      let planilha2Cards = [];
-
-      function loadData(sheetUrl, isFirstSheet) {
-        return fetch(sheetUrl)
-          .then(response => response.text())
-          .then(csvData => {
-            const rows = csvData.split('\n').slice(1).reverse();
-            let cards = [];
-
-            rows.forEach((row, index) => {
-              const columns = row.split(',');
-              const rowId = rows.length - index;
-
-              if (isFirstSheet) {
-                const nome = columns[0].replace(/"/g, ''); // Coluna A contém o nome
-                const title = columns[1].replace(/"/g, ''); // Coluna B contém o título
-                const message = columns[6].replace(/"/g, ''); // Coluna G contém a mensagem
-                const additionalInfo = columns[8].replace(/"/g, ''); // Coluna H contém a info adicional
-
-                // Filtra as solicitações com base no nome fornecido (comparação aproximada)
-                if (nome.toLowerCase().includes(nomeCompleto.toLowerCase())) {
-                  const card = `
-                    <div class="card" style="--index: ${index}">
-                    <h3><strong></strong> ${nome}</h3> <!-- Exibe o nome ao invés de "sim" -->
-                      <p><strong>Mensagem:</strong> ${message}</p>
-                      <p><strong>Info adicional:</strong> ${additionalInfo}</p>
-                      <p><strong>ID da linha:</strong> ${rowId}</p>
-                    </div>
-                  `;
-                  planilha1Cards.push({ id: rowId, content: card });
-                }
-              } else {
-                const status = columns[2].replace(/"/g, '');
-                const cardClass = status === 'Aprovado' ? 'card planilha2 approved' : (status === 'Recusado' ? 'card planilha2 rejected' : 'card planilha2');
-
-                const card = `
-                  <div class="${cardClass}" style="--index: ${index}">
-                    <h3>ID: ${rowId}</h3>
-                    <p><strong>Status:</strong> ${status}</p>
-                  </div>
-                `;
-                planilha2Cards.push({ id: rowId, content: card, status: status });
-              }
-            });
-          })
-          .catch(error => console.error('Erro ao carregar a planilha:', error));
-      }
-
-      Promise.all([loadData(sheetUrl1, true), loadData(sheetUrl2, false)]).then(() => {
-        const container = document.getElementById('cards-container');
-        const maxLength = Math.max(planilha1Cards.length, planilha2Cards.length);
-        let allRows = [];
-
-        for (let i = 0; i < maxLength; i++) {
-          const card1 = planilha1Cards[i] ? planilha1Cards[i].content : '';
-          const card2 = planilha2Cards.find(item => item.id === planilha1Cards[i]?.id)?.content || '';
-
-          // Remover cards vazios
-          if (card1 && card2) {
-            const row = `
-              ${card1}
-              ${card2}
-            `;
-            allRows.push(row);
-          }
+      // Referência para o nó 'solicitacoes_uber' no Firebase
+      const ref = database.ref('solicitacoes_uber');
+      
+      ref.once('value').then((snapshot) => {
+        const data = snapshot.val();
+        container.innerHTML = '';
+        
+        if (!data) {
+          container.innerHTML = '<p>Nenhuma solicitação encontrada.</p>';
+          return;
         }
 
-        container.innerHTML = allRows.join('');
+        let cards = [];
+        let index = 0;
+        
+        // Converter o objeto em array e ordenar por dataSolicitacao (mais recente primeiro)
+        const dataArray = Object.entries(data).map(([key, value]) => ({
+          id: key,
+          ...value
+        })).sort((a, b) => {
+          // Converter datas para timestamp para ordenação
+          const dateA = new Date(a.dataSolicitacao).getTime();
+          const dateB = new Date(b.dataSolicitacao).getTime();
+          return dateB - dateA;
+        });
+
+        // Filtrar apenas as solicitações do usuário atual
+        const userRequests = dataArray.filter(item => 
+          item.solicitante && item.solicitante.toLowerCase().includes(nomeCompleto.toLowerCase())
+        );
+
+        if (userRequests.length === 0) {
+          container.innerHTML = `<p>Nenhuma solicitação encontrada para ${nomeCompleto}.</p>`;
+          return;
+        }
+
+        userRequests.forEach((item) => {
+          // Determinar a classe CSS com base no status
+          let statusClass = '';
+          let statusBadge = '';
+          
+          if (item.status) {
+            const statusLower = item.status.toLowerCase();
+            
+            if (statusLower.includes('aprovado')) {
+              statusClass = 'approved';
+              statusBadge = '<span class="status-badge approved-badge">APROVADO</span>';
+            } else if (statusLower.includes('recusado') || statusLower.includes('negado')) {
+              statusClass = 'rejected';
+              statusBadge = '<span class="status-badge rejected-badge">RECUSADO</span>';
+            } else {
+              statusClass = 'pending';
+              statusBadge = '<span class="status-badge pending-badge">PENDENTE</span>';
+            }
+          }
+
+          // Formatar a data
+          const formattedDate = item.dataSolicitacao || 'Data não disponível';
+          const processedDate = item.dataProcessamento ? `Processado em: ${item.dataProcessamento}` : '';
+          const processedBy = item.processadoPor ? `Por: ${item.processadoPor}` : '';
+
+          // Criar o card HTML
+          const card = `
+            <div class="card ${statusClass}" style="--index: ${index++}">
+              <h3>Solicitação #${item.idNumerico || 'N/A'} ${statusBadge}</h3>
+              <p><strong>Solicitante:</strong> ${item.solicitante || 'N/A'}</p>
+              <p><strong>Data:</strong> ${formattedDate}</p>
+              <p><strong>Local de Saída:</strong> ${item.localSaida || 'N/A'}</p>
+              <p><strong>Local de Destino:</strong> ${item.localDestino || 'N/A'}</p>
+              <p><strong>Data de Utilização:</strong> ${item.dataUtilizacao || 'N/A'}</p>
+              <p><strong>Motivo:</strong> ${item.motivoTransporte || 'N/A'}</p>
+              <p><strong>Valor Solicitado:</strong> ${item.valorCorrida || 'N/A'}</p>
+              ${item.valorAprovado ? `<p><strong>Valor Aprovado:</strong> ${item.valorAprovado}</p>` : ''}
+              ${processedDate ? `<p><strong>${processedDate}</strong></p>` : ''}
+              ${processedBy ? `<p><strong>${processedBy}</strong></p>` : ''}
+            </div>
+          `;
+          
+          cards.push(card);
+        });
+
+        container.innerHTML = cards.join('');
+      }).catch((error) => {
+        console.error('Erro ao carregar dados do Firebase:', error);
+        container.innerHTML = '<p>Ocorreu um erro ao carregar as solicitações. Por favor, tente novamente mais tarde.</p>';
       });
-    });
+    }
+
+    // Carregar os dados quando a página estiver pronta
+    document.addEventListener('DOMContentLoaded', loadDataFromFirebase);
   </script>
 </body>
 </html>

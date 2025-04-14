@@ -1,394 +1,935 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3498db"/>
   <link rel="icon" type="image/x-icon" href="img/GZL - Logos_pages-to-jpg-0004.jpg">
   <title>Aprovação de Voucher</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
   <style>
-    /* Reset de estilo e configuração de tipografia */
+    :root {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --danger-color: #e74c3c;
+      --danger-dark: #c0392b;
+      --success-color: #2ecc71;
+      --success-dark: #27ae60;
+      --warning-color: #f39c12;
+      --warning-dark: #e67e22;
+      --whatsapp-color: #25D366;
+      --whatsapp-dark: #128C7E;
+      --text-color: #2c3e50;
+      --light-gray: #f5f5f5;
+      --border-color: #ddd;
+      --card-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #e6e9ed);
-      color: #333;
-      padding: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      flex-direction: column;
-      margin: 0;
     }
-
-    h1 {
-      font-size: 2.8rem;
-      margin-bottom: 30px;
-      color: #2c3e50;
+    
+    body {
+      background-color: var(--light-gray);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
       text-align: center;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      margin-bottom: 30px;
+      padding: 20px 0;
+    }
+    
+    .logo {
+      max-width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+      color: var(--text-color);
       position: relative;
-      animation: fadeInDown 1s ease-out;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: 15px;
     }
-
-    h1 img {
-      height: 50px;
-      width: auto;
-    }
-
+    
     h1::after {
       content: '';
       display: block;
       height: 4px;
       width: 80px;
-      background-color: #3498db;
-      margin: 20px auto 0;
+      background-color: var(--primary-color);
+      margin: 15px auto 0;
       border-radius: 2px;
-      animation: scaleX 1s ease-out;
     }
-
-    .card-container {
-      width: 100%;
-      max-width: 1000px;
+    
+    /* Barra de controle */
+    .controls {
       display: flex;
-      flex-direction: column;
-      gap: 25px;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+      align-items: center;
     }
-
-    .card {
-      background-color: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      color: #333;
-      overflow: hidden;
-      transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
-      position: relative;
-      opacity: 0;
-      animation: fadeInUp 0.8s ease-out forwards;
-      animation-delay: calc(var(--index) * 0.2s);
-    }
-
-    .card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-    }
-
-    .card h3 {
-      font-size: 1.6rem;
-      color: #3498db;
-      margin-bottom: 15px;
-      font-weight: 600;
-      text-transform: capitalize;
-    }
-
-    .card p {
-      font-size: 1.1rem;
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-
-    .card .button {
-      background-color: #3498db;
-      color: white;
-      padding: 12px 24px;
-      font-size: 1.1rem;
+    
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
-      cursor: pointer;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    .btn {
       border: none;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      margin-top: 15px;
-      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
-
-    .card .button.whatsapp {
-      background-color: #25D366; /* Cor verde do WhatsApp */
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
     }
-
-    .card .button.whatsapp:hover {
-      background-color: #128C7E; /* Cor verde mais escura do WhatsApp */
-    }
-
-    .card .button:hover {
-      background-color: #2980b9;
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
       transform: translateY(-2px);
     }
-
-    .card .button:active {
-      background-color: #2980b9;
-      transform: translateY(0);
+    
+    .btn-success {
+      background-color: var(--success-color);
+      color: white;
     }
-
-    .card input[type="text"] {
+    
+    .btn-success:hover {
+      background-color: var(--success-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: var(--danger-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-warning {
+      background-color: var(--warning-color);
+      color: white;
+    }
+    
+    .btn-warning:hover {
+      background-color: var(--warning-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn-whatsapp {
+      background-color: var(--whatsapp-color);
+      color: white;
+    }
+    
+    .btn-whatsapp:hover {
+      background-color: var(--whatsapp-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn.active {
+      box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-color);
+    }
+    
+    /* Cards de solicitação */
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .card h3 {
+      font-size: 1.4rem;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    
+    .card p {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    
+    .card strong {
+      font-weight: 600;
+    }
+    
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .card-actions .btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px 15px;
+      font-size: 0.9rem;
+    }
+    
+    .form-group {
+      margin-top: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .form-group input {
       width: 100%;
       padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-color);
       border-radius: 5px;
       font-size: 1rem;
     }
-
-    /* Animação para fade-in */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
+    
+    /* Badges de status */
+    .status-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: white;
     }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    
+    .status-pendente {
+      background-color: var(--warning-color);
     }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    
+    .status-aprovado {
+      background-color: var(--success-color);
     }
-
-    @keyframes scaleX {
-      from {
-        transform: scaleX(0);
-      }
-      to {
-        transform: scaleX(1);
-      }
+    
+    .status-recusado {
+      background-color: var(--danger-color);
     }
-
-    /* Cores e bordas diferentes para planilhas */
-    .card.planilha2 {
-      background: #ecf0f1;
-      border-left: 5px solid #3498db;
+    
+    /* Estilos para cards aprovados/recusados */
+    .card.aprovado {
+      border-left: 5px solid var(--success-color);
     }
-
-    .card.planilha2.approved {
-      background: #e8f5e9;
-      border-left: 5px solid #4CAF50;
+    
+    .card.recusado {
+      border-left: 5px solid var(--danger-color);
     }
-
-    .card.planilha2.rejected {
-      background: #ffebee;
-      border-left: 5px solid #f44336;
+    
+    /* Mensagens de erro */
+    .error-message {
+      color: var(--danger-color);
+      margin-top: 5px;
+      font-size: 0.9rem;
+      display: none;
     }
-
+    
+    /* Seção de login (para administradores) */
+    .auth-container {
+      max-width: 400px;
+      margin: 50px auto;
+    }
+    
+    .auth-box {
+      background: white;
+      border-radius: 10px;
+      box-shadow: var(--card-shadow);
+      padding: 30px;
+    }
+    
+    .auth-box h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .user-details {
+      text-align: center;
+    }
+    
+    .user-name {
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+    
+    .user-email {
+      color: #777;
+      font-size: 0.9rem;
+    }
+    
     /* Responsividade */
     @media (max-width: 768px) {
-      body {
-        padding: 20px;
-      }
-      h1 {
-        font-size: 2.2rem;
-        flex-direction: column;
-        text-align: center;
-      }
-      h1 img {
-        height: 40px;
-      }
       .card-container {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+        flex-direction: column;
+      }
+      
+      .controls {
+        flex-direction: column;
+      }
+      
+      .search-input {
         width: 100%;
-        padding: 10px;
-      }
-      .card {
-        padding: 20px;
-      }
-      .card h3 {
-        font-size: 1.4rem;
-      }
-      .card p {
-        font-size: 1rem;
-      }
-      .card .button {
-        width: 100%;
-        padding: 10px;
-        font-size: 1rem;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Aprovação de Voucher</h1>
-  <div id="cards-container" class="card-container"></div>
+  <div class="container">
+    <!-- Cabeçalho -->
+    <header>
+      <img src="img/GZL - Logos_pages-to-jpg-0001.jpg" alt="Logo da Empresa" class="logo">
+      <h1>Aprovação de Voucher</h1>
+    </header>
 
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- Sistema de Login -->
+    <div id="authSection" class="auth-container">
+      <div class="auth-box">
+        <h2>Acesso ao Sistema</h2>
+        <form id="adminLoginForm" class="auth-form">
+          <div class="form-group">
+            <label for="adminEmail">E-mail</label>
+            <input type="email" id="adminEmail" placeholder="Seu e-mail" required>
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Senha</label>
+            <input type="password" id="adminPassword" placeholder="Sua senha" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+          <div id="loginError" class="error-message mt-3"></div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Área principal (após login) -->
+    <div id="adminArea" class="hidden">
+      <!-- Informações do usuário logado -->
+      <div class="user-info">
+        <div id="adminAvatar" class="user-avatar"></div>
+        <div class="user-details">
+          <div id="adminName" class="user-name"></div>
+          <div id="adminEmailDisplay" class="user-email"></div>
+          <div id="adminRole" class="user-role"></div>
+        </div>
+        <button id="adminLogoutBtn" class="btn btn-danger">Sair</button>
+      </div>
+      
+      <!-- Controles -->
+      <div class="controls">
+        <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por nome, ID, unidade...">
+        <button id="notificationBtn" class="btn btn-primary">
+          <i class="fas fa-bell"></i> Ativar Notificações
+        </button>
+      </div>
+      
+      <!-- Cards de solicitação -->
+      <div id="cards-container" class="card-container"></div>
+    </div>
+  </div>
+
   <script>
-    google.charts.load('current', { packages: ['corechart', 'table'] });
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmhnN2jEQWMeAwSLJiAfNHUapM5_HgiOw",
+      authDomain: "appguizilim.firebaseapp.com",
+      databaseURL: "https://appguizilim-default-rtdb.firebaseio.com",
+      projectId: "appguizilim",
+      storageBucket: "appguizilim.firebasestorage.app",
+      messagingSenderId: "669241709255",
+      appId: "1:669241709255:web:bde10d035254b74c9724e2",
+      measurementId: "G-J2MKLZ5XL0"
+    };
 
-    google.charts.setOnLoadCallback(() => {
-      const sheetUrl1 = 'https://docs.google.com/spreadsheets/d/1cOdxnOYdWKy5pr0kakcnSFOpCeQdui9C4yppGNI-xa4/gviz/tq?tqx=out:csv';
-      const sheetUrl2 = 'https://docs.google.com/spreadsheets/d/1DwaNXlirinEUp5DDJMUXggdD_p51ZRX5HdcCgNkOr3s/gviz/tq?tqx=out:csv';
+    // Inicialize o Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+    const messaging = firebase.messaging();
 
-      let planilha1Cards = [];
-      let planilha2Cards = [];
+    // Referências do banco de dados
+    const solicitacoesRef = database.ref('solicitacoes_uber');
+    const contadorRef = database.ref('contador_solicitacoes');
+    
+    // Lista de e-mails com privilégios administrativos
+    const ADMIN_EMAILS = [
+      'mortadela22112005@gmail.com',
+      'pedrogaspar443@gmail.com'
+    ];
+    
+    // Variáveis globais
+    let allSolicitacoes = [];
+    let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
+    let currentUser = null;
+    let isAdmin = false;
 
-      function loadData(sheetUrl, isFirstSheet) {
-        return fetch(sheetUrl)
-          .then(response => response.text())
-          .then(csvData => {
-            const rows = csvData.split('\n').slice(1).reverse();
-            let cards = [];
+    // Elementos da UI
+    const authSection = document.getElementById('authSection');
+    const adminArea = document.getElementById('adminArea');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminAvatar = document.getElementById('adminAvatar');
+    const adminName = document.getElementById('adminName');
+    const adminEmailDisplay = document.getElementById('adminEmailDisplay');
+    const adminRole = document.getElementById('adminRole');
+    const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+    const searchInput = document.getElementById('searchInput');
+    const notificationBtn = document.getElementById('notificationBtn');
+    const cardsContainer = document.getElementById('cards-container');
+    const loginError = document.getElementById('loginError');
 
-            rows.forEach((row, index) => {
-              const columns = row.split(',');
-              const rowId = rows.length - index;
-
-              if (isFirstSheet) {
-                const title = columns[0].replace(/"/g, '');
-                const message = columns[6].replace(/"/g, '');
-                const Endereço1 = columns[3].replace(/"/g, '');
-                const Endereço2 = columns[4].replace(/"/g, '');
-                const Utilização = columns[5].replace(/"/g, '');
-                const valor = columns[7].replace(/"/g, '');
-                const Unidade = columns[9].replace(/"/g, '');
-                const additionalInfo = columns[8].replace(/"/g, '');
-
-                const card = `
-                  <div class="card" style="--index: ${index}">
-                    <h3>${title}</h3>
-                    <p><strong>Justificativa:</strong> ${message}</p>
-                    <p><strong>Data De Solicitação:</strong> ${additionalInfo}</p>
-                    <p><strong>Saida:</strong> ${Endereço1}</p>
-                    <p><strong>Destino:</strong> ${Endereço2}</p>
-                    <p><strong>Data de Utilização:</strong> ${Utilização}</p>
-                    <p><strong>Valor Da Corrida:</strong> ${valor}</p>
-                    <p><strong>Unidade De Atendimento:</strong> ${Unidade}</p>
-                    <p><strong>ID da linha:</strong> ${rowId}</p>
-                    <label for="valor-real-${rowId}">Valor Real da Corrida:</label>
-                    <input type="text" id="valor-real-${rowId}" placeholder="Digite o valor real da corrida">
-                    <div class="buttons-container" id="buttons-${rowId}">
-                      <button class="button approve" onclick="sendDecision(${rowId}, 'Aprovado')">Aprovar</button>
-                      <button class="button reject" onclick="sendDecision(${rowId}, 'Recusado')">Recusar</button>
-                      <button class="button whatsapp" onclick="sendToWhatsApp(${rowId})">Enviar via WhatsApp</button>
-                    </div>
-                  </div>
-                `;
-                planilha1Cards.push({ id: rowId, content: card });
-              } else {
-                const status = columns[2].replace(/"/g, '');
-                const cardClass = status === 'Aprovado' ? 'card planilha2 approved' : (status === 'Recusado' ? 'card planilha2 rejected' : 'card planilha2');
-
-                const card = `
-                  <div class="${cardClass}" style="--index: ${index}">
-                    <h3>ID: ${rowId}</h3>
-                    <p><strong>Status:</strong> ${status}</p>
-                  </div>
-                `;
-                planilha2Cards.push({ id: rowId, content: card, status: status });
-              }
-            });
-          })
-          .catch(error => console.error('Erro ao carregar a planilha:', error));
-      }
-
-      Promise.all([loadData(sheetUrl1, true), loadData(sheetUrl2, false)]).then(() => {
-        const container = document.getElementById('cards-container');
-        const maxLength = Math.max(planilha1Cards.length, planilha2Cards.length);
-        let allRows = [];
-
-        for (let i = 0; i < maxLength; i++) {
-          const card1 = planilha1Cards[i] ? planilha1Cards[i].content : '<div class="card"></div>';
-          const card2 = planilha2Cards[i] ? planilha2Cards[i].content : '<div class="card planilha2"></div>';
-
-          const row = `
-            ${card1}
-            ${card2}
-          `;
-          allRows.push(row);
+    // Verificar estado de autenticação
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        isAdmin = ADMIN_EMAILS.includes(user.email);
+        
+        showUserArea();
+        loadSolicitations();
+        
+        // Configurar notificações apenas para admins
+        if (isAdmin && 'serviceWorker' in navigator) {
+          setupServiceWorker();
         }
+      } else {
+        hideUserArea();
+      }
+    });
 
-        container.innerHTML = allRows.join('');
+    // Mostrar área do usuário
+    function showUserArea() {
+      authSection.classList.add('hidden');
+      adminArea.classList.remove('hidden');
+      
+      // Atualizar informações do usuário
+      adminName.textContent = currentUser.displayName || currentUser.email.split('@')[0];
+      adminEmailDisplay.textContent = currentUser.email;
+      adminRole.textContent = isAdmin ? 'Administrador' : 'Usuário';
+      
+      if (currentUser.photoURL) {
+        adminAvatar.style.backgroundImage = `url(${currentUser.photoURL})`;
+        adminAvatar.textContent = '';
+      } else {
+        adminAvatar.textContent = currentUser.displayName 
+          ? currentUser.displayName.charAt(0).toUpperCase() 
+          : currentUser.email.charAt(0).toUpperCase();
+      }
+      
+      updateNotificationButton();
+    }
 
-        planilha2Cards.forEach(card2 => {
-          if (card2.status) {
-            const buttonsContainer = document.getElementById(`buttons-${card2.id}`);
-            if (buttonsContainer) {
-              // Oculta apenas os botões de "Aprovar" e "Recusar"
-              buttonsContainer.querySelector('.approve').style.display = 'none';
-              buttonsContainer.querySelector('.reject').style.display = 'none';
+    // Esconder área do usuário
+    function hideUserArea() {
+      authSection.classList.remove('hidden');
+      adminArea.classList.add('hidden');
+      allSolicitacoes = [];
+      cardsContainer.innerHTML = '';
+    }
+
+    // Login
+    adminLoginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          loginError.textContent = '';
+        })
+        .catch(error => {
+          showError('loginError', getErrorMessage(error.code));
+        });
+    });
+
+    // Logout
+    adminLogoutBtn.addEventListener('click', () => {
+      auth.signOut();
+    });
+
+    // Atualizar botão de notificação
+    function updateNotificationButton() {
+      if (notificationEnabled) {
+        notificationBtn.innerHTML = '<i class="fas fa-bell"></i> Notificações Ativas';
+        notificationBtn.classList.add('active');
+      } else {
+        notificationBtn.innerHTML = '<i class="fas fa-bell"></i> Ativar Notificações';
+        notificationBtn.classList.remove('active');
+      }
+      localStorage.setItem('notificationEnabled', notificationEnabled);
+    }
+
+    // Configurar service worker
+    async function setupServiceWorker() {
+      try {
+        // Registrar o service worker
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        console.log('Service Worker registrado com sucesso:', registration);
+        
+        // Obter token FCM
+        const token = await messaging.getToken({
+          vapidKey: "BHZxl8fhOLCkfAJ8Ub7fuJ3C3qP9DhktZy0G_39BHlpf0eNSZ6buorkGEMjAIuzHGXK6kDrxCpVkt-cZXkKttnk",
+          serviceWorkerRegistration: registration
+        });
+        
+        if (token) {
+          console.log('Token FCM:', token);
+          // Salvar token no banco de dados associado ao usuário
+          await database.ref(`fcm_tokens/${currentUser.uid}`).set(token);
+        }
+        
+        // Lidar com mensagens em primeiro plano
+        messaging.onMessage((payload) => {
+          console.log('Mensagem recebida:', payload);
+          showNotification(payload.notification.title, payload.notification.body);
+        });
+      } catch (error) {
+        console.error('Erro ao configurar Service Worker:', error);
+      }
+    }
+
+    // Mostrar notificação
+    function showNotification(title, body) {
+      if ("Notification" in window && Notification.permission === "granted" && notificationEnabled) {
+        new Notification(title, { body });
+      }
+    }
+
+    // Botão de notificação
+    notificationBtn.addEventListener('click', () => {
+      if (Notification.permission === "granted") {
+        notificationEnabled = !notificationEnabled;
+        updateNotificationButton();
+      } else {
+        requestNotificationPermission();
+      }
+    });
+
+    // Solicitar permissão para notificações
+    async function requestNotificationPermission() {
+      if (!("Notification" in window)) {
+        alert('Seu navegador não suporta notificações ou elas estão desativadas.');
+        return;
+      }
+      
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          notificationEnabled = true;
+          updateNotificationButton();
+          if (isAdmin) {
+            await setupServiceWorker();
+          }
+          showNotification('Notificações Ativadas', 'Você receberá notificações para novas solicitações.');
+        } else {
+          notificationEnabled = false;
+          updateNotificationButton();
+        }
+      } catch (error) {
+        console.error('Erro ao solicitar permissão:', error);
+        notificationEnabled = false;
+        updateNotificationButton();
+      }
+    }
+
+    // Carregar solicitações
+    function loadSolicitations() {
+      solicitacoesRef.orderByChild('idNumerico').on('value', (snapshot) => {
+        allSolicitacoes = [];
+        cardsContainer.innerHTML = '';
+        
+        snapshot.forEach((childSnapshot) => {
+          const solicitacao = childSnapshot.val();
+          const solicitacaoId = childSnapshot.key;
+          
+          allSolicitacoes.push({
+            id: solicitacaoId,
+            data: solicitacao,
+            status: solicitacao.status || 'pendente',
+            idNumerico: solicitacao.idNumerico || 0
+          });
+        });
+        
+        // Ordenar por ID numérico decrescente
+        allSolicitacoes.sort((a, b) => b.idNumerico - a.idNumerico);
+        
+        // Atribuir IDs numéricos se necessário (apenas admins podem fazer isso)
+        if (isAdmin) {
+          allSolicitacoes.forEach((solicitacao) => {
+            if (!solicitacao.idNumerico || solicitacao.idNumerico === 0) {
+              contadorRef.transaction((currentValue) => {
+                return (currentValue || 0) + 1;
+              }, (error, committed, snapshot) => {
+                if (committed) {
+                  const novoId = snapshot.val();
+                  database.ref(`solicitacoes_uber/${solicitacao.id}`).update({
+                    idNumerico: novoId
+                  });
+                }
+              });
+            }
+          });
+        }
+        
+        renderSolicitations(allSolicitacoes);
+        
+        // Notificar sobre novas pendentes (apenas para admins)
+        if (isAdmin) {
+          const novasPendentes = allSolicitacoes.filter(s => 
+            s.status === 'pendente' && (!s.data.dataProcessamento || s.data.dataProcessamento === '')
+          );
+          
+          if (novasPendentes.length > 0 && notificationEnabled) {
+            showNotification('Novas Solicitações', 
+              `${novasPendentes.length} nova(s) solicitação(ões) pendente(s)`);
+          }
+        }
+      });
+      
+      // Listener para novas solicitações (apenas para admins)
+      if (isAdmin) {
+        solicitacoesRef.orderByChild('idNumerico').limitToLast(1).on('child_added', (snapshot) => {
+          if (notificationEnabled) {
+            const novaSolicitacao = snapshot.val();
+            if (novaSolicitacao.status === 'pendente' || !novaSolicitacao.status) {
+              showNotification('Nova Solicitação', 
+                `${novaSolicitacao.nomeCompleto || 'Novo usuário'} solicitou um voucher`);
             }
           }
         });
-      });
-    });
-
-    function disableButtons(rowId) {
-      const buttonsContainer = document.getElementById(`buttons-${rowId}`);
-      if (buttonsContainer) {
-        buttonsContainer.querySelector('.approve').style.display = 'none';
-        buttonsContainer.querySelector('.reject').style.display = 'none';
       }
     }
 
-    function sendDecision(id, choice) {
-      disableButtons(id);
-
-      fetch('https://script.google.com/macros/s/AKfycbwhV4s-wmHRdsuzZQ-0Tpb7PGxfT4h2hrFaRIThV_WyB1kj0e8n675DQ-jz4Zy2OlD5/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rowId: id, data_pergunta1: id.toString(), data_pergunta2: choice }),
-        mode: 'no-cors'
-      })
-      .then(response => {
-        console.log('Requisição enviada');
-        location.reload();
-      })
-      .catch(error => {
-        console.error('Erro:', error);
+    // Renderizar solicitações
+    function renderSolicitations(solicitacoes) {
+      cardsContainer.innerHTML = '';
+      
+      solicitacoes.forEach((solicitacao, index) => {
+        const card = createSolicitationCard(solicitacao, index);
+        cardsContainer.appendChild(card);
       });
     }
 
-    function sendToWhatsApp(rowId) {
-      const card = document.querySelector(`#buttons-${rowId}`).parentElement;
-      const title = card.querySelector('h3').innerText;
-      const message = card.querySelector('p:nth-child(2)').innerText;
-      const idCard1 = card.querySelector('p:nth-child(9)').innerText; // ID do Card 1
-      const valor = card.querySelector('p:nth-child(7)').innerText; // ID do Card 1
-      const valorCorrida = card.querySelector(`#valor-real-${rowId}`).value;
+    // Criar card de solicitação
+    function createSolicitationCard(solicitacao, index) {
+      const { id, idNumerico, data, status } = solicitacao;
+      const card = document.createElement('div');
+      card.className = `card ${status !== 'pendente' ? status : ''}`;
+      
+      // Badge de status
+      const statusBadge = document.createElement('span');
+      statusBadge.className = `status-badge status-${status}`;
+      statusBadge.textContent = status;
+      
+      // Conteúdo do card
+      const content = document.createElement('div');
+      content.innerHTML = `
+        <h3>${data.nomeCompleto || 'Nome não informado'}</h3>
+        <p><strong>ID:</strong> #${idNumerico}</p>
+        <p><strong>Função:</strong> ${data.funcao || 'Não informado'}</p>
+        <p><strong>Solicitante:</strong> ${data.solicitante || 'Não informado'}</p>
+        <p><strong>Saída:</strong> ${data.localSaida || 'Não informado'}</p>
+        <p><strong>Destino:</strong> ${data.localDestino || 'Não informado'}</p>
+        <p><strong>Data:</strong> ${data.dataUtilizacao || 'Não informado'}</p>
+        <p><strong>Motivo:</strong> ${data.motivoTransporte || 'Não informado'}</p>
+        <p><strong>Valor:</strong> ${data.valorCorrida || 'Não informado'}</p>
+        <p><strong>Unidade:</strong> ${data.unidadeAtendimento || 'Não informado'}</p>
+        <p><strong>Solicitado em:</strong> ${data.dataSolicitacao || 'Não informado'}</p>
+      `;
+      
+      // Apenas admins podem aprovar/recusar
+      if (isAdmin && status === 'pendente') {
+        // Campo para valor real
+        const valorRealGroup = document.createElement('div');
+        valorRealGroup.className = 'form-group';
+        valorRealGroup.innerHTML = `
+          <label for="valor-real-${id}">Valor Real:</label>
+          <input type="text" id="valor-real-${id}" placeholder="Digite o valor real">
+        `;
+        content.appendChild(valorRealGroup);
+        
+        // Ações
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        actions.innerHTML = `
+          <button class="btn btn-success" onclick="approveSolicitation('${id}')">
+            <i class="fas fa-check"></i> Aprovar
+          </button>
+          <button class="btn btn-danger" onclick="rejectSolicitation('${id}')">
+            <i class="fas fa-times"></i> Recusar
+          </button>
+          <button class="btn btn-whatsapp" onclick="sendWhatsApp('${id}')">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </button>
+        `;
+        content.appendChild(actions);
+      } else if (status !== 'pendente') {
+        // Mostrar informações de processamento para todos os usuários
+        const processInfo = document.createElement('div');
+        processInfo.innerHTML = `
+          <p><strong>Status:</strong> ${status}</p>
+          ${data.valorAprovado ? `<p><strong>Valor Aprovado:</strong> ${data.valorAprovado}</p>` : ''}
+          ${data.motivoRecusa ? `<p><strong>Motivo:</strong> ${data.motivoRecusa}</p>` : ''}
+          <p><strong>Processado em:</strong> ${data.dataProcessamento || 'N/A'}</p>
+          <p><strong>Por:</strong> ${data.processadoPor || 'N/A'}</p>
+        `;
+        content.appendChild(processInfo);
+      }
+      
+      card.appendChild(statusBadge);
+      card.appendChild(content);
+      return card;
+    }
 
-      // Encontra o Card 2 correspondente ao mesmo ID
-      const card2 = Array.from(document.querySelectorAll('.card.planilha2')).find(card => {
-        const cardId = card.querySelector('h3').innerText.replace('ID: ', '');
-        return cardId === rowId.toString();
+    // Aprovar solicitação
+    function approveSolicitation(solicitacaoId) {
+      if (!isAdmin) {
+        alert('Apenas administradores podem aprovar solicitações');
+        return;
+      }
+      
+      const valorReal = document.getElementById(`valor-real-${solicitacaoId}`)?.value;
+      if (!valorReal) {
+        alert('Informe o valor real da corrida!');
+        return;
+      }
+      
+      const updates = {
+        status: 'aprovado',
+        valorAprovado: valorReal,
+        dataProcessamento: new Date().toLocaleString('pt-BR'),
+        processadoPor: currentUser.email
+      };
+      
+      database.ref(`solicitacoes_uber/${solicitacaoId}`).update(updates)
+        .then(() => {
+          if (notificationEnabled) {
+            showNotification('Solicitação Aprovada', 'O voucher foi aprovado com sucesso');
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao aprovar:', error);
+          alert('Erro ao aprovar solicitação');
+        });
+    }
+
+    // Recusar solicitação
+    function rejectSolicitation(solicitacaoId) {
+      if (!isAdmin) {
+        alert('Apenas administradores podem recusar solicitações');
+        return;
+      }
+      
+      const motivo = prompt('Digite o motivo da recusa:');
+      if (!motivo) {
+        alert('Informe o motivo da recusa!');
+        return;
+      }
+      
+      const updates = {
+        status: 'recusado',
+        motivoRecusa: motivo,
+        dataProcessamento: new Date().toLocaleString('pt-BR'),
+        processadoPor: currentUser.email
+      };
+      
+      database.ref(`solicitacoes_uber/${solicitacaoId}`).update(updates)
+        .then(() => {
+          if (notificationEnabled) {
+            showNotification('Solicitação Recusada', 'O voucher foi recusado');
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao recusar:', error);
+          alert('Erro ao recusar solicitação');
+        });
+    }
+
+    // Enviar por WhatsApp
+    function sendWhatsApp(solicitacaoId) {
+      const card = document.querySelector(`#valor-real-${solicitacaoId}`)?.closest('.card');
+      if (!card) {
+        alert('Não foi possível encontrar os dados da solicitação');
+        return;
+      }
+      
+      const valorReal = document.getElementById(`valor-real-${solicitacaoId}`)?.value || 'A definir';
+      
+      const info = {
+        nome: card.querySelector('h3')?.innerText || 'Não informado',
+        solicitante: card.querySelector('p:nth-child(4)')?.innerText.replace('Solicitante: ', '') || 'Não informado',
+        saida: card.querySelector('p:nth-child(5)')?.innerText.replace('Saída: ', '') || 'Não informado',
+        destino: card.querySelector('p:nth-child(6)')?.innerText.replace('Destino: ', '') || 'Não informado',
+        data: card.querySelector('p:nth-child(7)')?.innerText.replace('Data: ', '') || 'Não informado',
+        motivo: card.querySelector('p:nth-child(8)')?.innerText.replace('Motivo: ', '') || 'Não informado',
+        valor: card.querySelector('p:nth-child(9)')?.innerText.replace('Valor: ', '') || 'Não informado',
+        unidade: card.querySelector('p:nth-child(10)')?.innerText.replace('Unidade: ', '') || 'Não informado',
+        dataSolicitacao: card.querySelector('p:nth-child(11)')?.innerText.replace('Solicitado em: ', '') || 'Não informado'
+      };
+      
+      const text = `*Solicitação de Voucher Uber*\n\n` +
+        `*Nome:* ${info.nome}\n` +
+        `*Solicitante:* ${info.solicitante}\n` +
+        `*Saída:* ${info.saida}\n` +
+        `*Destino:* ${info.destino}\n` +
+        `*Data:* ${info.data}\n` +
+        `*Motivo:* ${info.motivo}\n` +
+        `*Valor Solicitado:* ${info.valor}\n` +
+        `*Valor Real:* ${valorReal}\n` +
+        `*Unidade:* ${info.unidade}\n` +
+        `*Solicitado em:* ${info.dataSolicitacao}\n` +
+        `*Status:* Pendente de aprovação`;
+      
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    // Filtrar solicitações
+    searchInput.addEventListener('input', (e) => {
+      const termo = e.target.value.toLowerCase();
+      if (!termo) {
+        renderSolicitations(allSolicitacoes);
+        return;
+      }
+      
+      const resultados = allSolicitacoes.filter(s => {
+        const dados = s.data;
+        return (
+          (dados.nomeCompleto && dados.nomeCompleto.toLowerCase().includes(termo)) ||
+          (dados.solicitante && dados.solicitante.toLowerCase().includes(termo)) ||
+          (dados.funcao && dados.funcao.toLowerCase().includes(termo)) ||
+          (dados.localSaida && dados.localSaida.toLowerCase().includes(termo)) ||
+          (dados.localDestino && dados.localDestino.toLowerCase().includes(termo)) ||
+          (dados.unidadeAtendimento && dados.unidadeAtendimento.toLowerCase().includes(termo)) ||
+          (`#${s.idNumerico}`.includes(termo)) ||
+          (s.status && s.status.toLowerCase().includes(termo))
+        );
       });
+      
+      renderSolicitations(resultados);
+    });
 
-      const idCard2 = card2 ? card2.querySelector('h3').innerText.replace('ID: ', '') : 'N/A';
-      const statusCard2 = card2 ? card2.querySelector('p').innerText.replace('Status: ', '') : 'N/A';
+    // Mostrar erro
+    function showError(elementId, message) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.style.display = 'block';
+    }
 
-      const text = `*Informações do Voucher:*\n\n` +
-        `*Título:* ${title}\n` +
-        `*Mensagem:* ${message}\n` +
-        `*ID do Card 1:* ${idCard1}\n` +
-        `*ID do Card 2:* ${idCard2}\n` +
-        `*Status do Card 2:* ${statusCard2}\n` +
-        `*Valor Informado pelo Solicitante* ${valor}\n` +
-        `*Valor da Corrida Atualizado:* ${valorCorrida}\n`;
+    // Traduzir códigos de erro
+    function getErrorMessage(code) {
+      const messages = {
+        'auth/invalid-email': 'E-mail inválido',
+        'auth/user-disabled': 'Conta desativada',
+        'auth/user-not-found': 'Usuário não encontrado',
+        'auth/wrong-password': 'Senha incorreta',
+        'auth/email-already-in-use': 'E-mail já em uso',
+        'auth/operation-not-allowed': 'Operação não permitida',
+        'auth/weak-password': 'Senha muito fraca (mínimo 6 caracteres)',
+        'auth/popup-closed-by-user': 'Janela de login fechada',
+        'auth/account-exists-with-different-credential': 'Conta já existe com credencial diferente',
+        'auth/requires-recent-login': 'Requer login recente'
+      };
+      return messages[code] || 'Erro desconhecido';
+    }
 
-      const encodedText = encodeURIComponent(text);
-      const whatsappUrl = `https://wa.me/5511976115802?text=${encodedText}`;
-      window.open(whatsappUrl, '_blank');
+    // Inicializar service worker para admins
+    if ('serviceWorker' in navigator && isAdmin) {
+      window.addEventListener('load', () => {
+        setupServiceWorker();
+      });
     }
   </script>
 </body>
